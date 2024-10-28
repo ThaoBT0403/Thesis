@@ -1,6 +1,11 @@
 library(Rprobit)
-source("/Users/thanhthaobui/Documents/Abschlussarbeit Bauer/redraw_choices_from_data.R")
+# Input the R file "redraw_choices_from_data"
+source("/Users/thanhthaobui/Documents/Abschlussarbeit Bauer/redraw_choices_from_data.R") 
+
+# Input the R file "build_par_from_mod"
 source("/Users/thanhthaobui/Documents/Abschlussarbeit Bauer/build_par_from_mod.R")
+
+# Input the R file "substract_choice_regressor_from_data"
 source("/Users/thanhthaobui/Documents/Abschlussarbeit Bauer/substract_choice_regressor_from_data.R")
 
 # Model structure for non-parametric analyses
@@ -19,7 +24,7 @@ mode_np$fL[1] = 1
 mode_np$fL[4] = 1
 mode_np$fL[6] = 1
 
-params = matrix(seq(from=-2,to=4,by= 0.1),nrow = 1)
+params = matrix(seq(from=-4,to=6,by= 0.1),nrow = 1)
 length(params)
 mode_np$set_grid_points(params)
 
@@ -77,15 +82,16 @@ thetas[,2] <- 0
 seed = 1
 
 Rprobit_rd <- redraw_choices_from_data( Rprobit_obj, seed = seed, thetas) #Thao: New y is put into dataset to reflex the effect of random error term
-Rprobit_rd$data$data
-Rprobit_rd$data_raw$df
+# The 2 forms of the dataset used to estimate models
+Rprobit_rd$data$data[[1]]
+Rprobit_rd$data_raw$df[1:10,]
 dim(Rprobit_rd$data_raw$df)
 
 # Number of replications
 #M = 10
 
 # Thao: Grid points to determine the CDF
-cdf_knots <- seq(from = -4, to =4, by = 0.01) 
+cdf_knots <- seq(from = -4, to = 6, by = 0.01) 
 length(cdf_knots)
 
 
@@ -474,15 +480,6 @@ control_simul = list(Tp = rep(5,N))
 M =200
 cml_pair_type = 0
 
-
-# redraw from different params 
-mu0 = 2
-sd0 = 1
-thetas <- matrix(rnorm(2*N,mean= mu0,sd = sd0),ncol =2)
-thetas[,2] <- 0
-
-cdf_true <- pnorm(cdf_knots,mean=mu0,sd=sd0)
-
 out_norm <- simul_nonpara(form, mod0, mode, mod_LC, mode_np, mod_LC_B, re, cdf_knots, cdf_true, latent_class, latent_class2, cml_pair_type, control_simul, thetas, M)
 
 
@@ -493,68 +490,13 @@ apply(0.01*out_norm$cdf_diff,2,mean)
 
 # Overview about the distribution of estimated beta
 summary(out_norm$beta_M)
-#Extract only values btw 1st and 2rd quarter
-#IQR <- apply(out_norm$beta_M, MARGIN = 2, FUN = quantile)[c(2,4),]
-
-#IQR_values_MMNP <- out_norm$beta_M[,1][out_norm$beta_M[,1] >= IQR[1,1] &  out_norm$beta_M[,1] <= IQR[2,1]]
-#IQR_values_LC <- out_norm$beta_M[,1][out_norm$beta_M[,1] >= IQR[1,2] &  out_norm$beta_M[,1] <= IQR[2,2]]
-#IQR_values_NP <- out_norm$beta_M[,1][out_norm$beta_M[,1] >= IQR[1,3] &  out_norm$beta_M[,1] <= IQR[2,3]]
-#length(IQR_values_NP)
-
-#APB <- c(abs(mean(IQR_values_MMNP)-1)*100, abs(mean(IQR_values_LC)-1)*100, abs(mean(IQR_values_NP)-1)*100)
-#APB2 <- abs(mean(IQR_values_LC)-1)*100
-#APB3 <- abs(mean(IQR_values_NP)-1)*100
-#FSSE <- c(sd(IQR_values_MMNP), sd(IQR_values_LC), sd(IQR_values_NP))
-#FSSE <- apply(out_norm$beta_M[-5,],2,sd)
-#RMSE <- sqrt((beta_esti2 - 1)^2 + FSSE^2)
-
-meanb <- apply(out_norm$beta_M[out_norm$beta_M[,1] < 10,],2, mean)
-meanb <- apply(out_norm$beta_M,2, mean)
-plot(out_norm$beta_M[,1], type = "l")
-points(out_norm$beta_M[,1], col = "red")
-lines(out_norm$beta_M[,2], col = "green")
-points(out_norm$beta_M[,2], col = "green")
-lines(out_norm$beta_M[,3], col = "blue")
-points(out_norm$beta_M[,3], col = "blue")
-
-plot(out_norm$beta_M[,2], col = "green", type = "l")
-points(out_norm$beta_M[,2], col = "green")
-
-APB <- abs(meanb-1)*100
-#FSSE <- apply(out_norm$beta_M[out_norm$beta_M[,1] < 10,], 2, sd)
-FSSE <- apply(out_norm$beta_M, 2, sd)
-RMSE <- sqrt((meanb-1)^2 + FSSE^2)
-
-labs = c('MMNP','LC_MMNP','nonpara')
 
 # deal with estimated cdfs 
 cdf_MMNP <- out_norm$cdfs[[1]]
-
 cdf_LC_MMNP <- out_norm$cdfs[[2]]
 cdf_nonpara <- out_norm$cdfs[[3]]
 
-#Thao: draw the graphs after 200 simulation times.
-
-plot(cdf_knots,cdf_MMNP[1,],type = 'l', , col = "green", main = "The distribution of the mixing in mixed MNP model", 
-     xlab = "grid points", ylab = "CDF-MMNP model")
-for (j in 2:M){
-  lines(cdf_knots,cdf_MMNP[j,], , col = "green")
-}
-lines(cdf_knots,cdf_true, , col = "purple")
-legend("topleft", c("MMNP", "true distribution"),
-       col = c("green", "purple"),
-       lty = c(1, 1, 9), lwd = c(3, 3, 9)
-)
-
-plot(cdf_knots,cdf_LC_MMNP[1,],type = 'l', col = "green")
-for (j in 2:M){
-  lines(cdf_knots,cdf_LC_MMNP[j,], col = "green")
-}
-
-plot(cdf_knots,cdf_nonpara[1,],type = 'l')
-for (j in 2:M){
-  lines(cdf_knots,cdf_nonpara[j,])
-}
+#Thao: Draw the graphs after 200 simulation times.
 
 # calculate mean cdfs for the three methods 
 cdf_MMNP_mean <- apply(cdf_MMNP,2,mean)
@@ -580,8 +522,11 @@ ggplot(ggplot_data, aes(x = x, y = y, color = label)) +
 ########################################
 ######### Thao: Draw the distribution of mixing after 200 simulation times 
 ######### From MMNP models
+install.packages("tidyverse")
+library(tidyverse)
+
 data_wide <- data.frame(x = cdf_knots)
-for (i in 1:m) {
+for (i in 1:M) {
   data_wide[[paste0("cdf", i)]] <- cdf_MMNP[i,]  # Random cumulative sums
 }
 
@@ -611,7 +556,7 @@ ggplot(combined_data, aes(x = x, y = value, group = cdf)) +
 ######### From LC-MMNP models
 
 data_wide <- data.frame(x = cdf_knots)
-for (i in 1:m) {
+for (i in 1:M) {
   data_wide[[paste0("cdf", i)]] <- cdf_LC_MMNP[i,]  # Random cumulative sums
 }
 
@@ -641,7 +586,7 @@ ggplot(combined_data, aes(x = x, y = value, group = cdf)) +
 ######### From non-parametric MMNP models
 
 data_wide <- data.frame(x = cdf_knots)
-for (i in 1:m) {
+for (i in 1:M) {
   data_wide[[paste0("cdf", i)]] <- cdf_nonpara[i,]  # Random cumulative sums
 }
 
@@ -667,5 +612,5 @@ ggplot(combined_data, aes(x = x, y = value, group = cdf)) +
        x = "Grid points",
        y = "CDF") +
   theme_minimal()
-
+  
 
