@@ -6,5 +6,5 @@ Using **Application_helveston USA.r **and **Application_helveston China.r**. Act
 To run those R files, it is necessary to import input data files **helveston_data_wide.RData** and **helveston_data_wide_china.RData**
 and input the R file **substract_choice_regressor_from_data.r** to have some functions.
 -------------------------------------------------------------------------------------------
-These files are original from prof. Dietmar Bauer and his team in their package **Rprobit** with some modification to be suitable with the thesis project.
+These files are based on the work of prof. Dietmar Bauer and his team in their package **Rprobit** with modification to be suitable with the thesis project.
 For more details, check the github: https://github.com/dbauer72/Rprobit
