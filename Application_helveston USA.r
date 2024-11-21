@@ -14,11 +14,10 @@ source("/Users/thanhthaobui/Documents/Abschlussarbeit Bauer/substract_choice_reg
 data <- load(file = "/Users/thanhthaobui/Documents/Abschlussarbeit Bauer/Data set USA China/helveston_data_wide.RData")
 
 # Separate the dataset into Calibration and evaluation subsets with 300 and 84 individuals in 2 sets
-# For the second case: Separate the dataset into Calibration and evaluation subset with 230 and 154 individuals in 2 sets
 
 print(data)
-data_est <- data_wide[1:(230*15),]
-data_val <- data_wide[(230*15 + 1):nrow(data_wide),]
+data_est <- data_wide[1:(300*15),]
+data_val <- data_wide[(300*15 + 1):nrow(data_wide),]
 
 #######################################
 # estimate MNP model without mixing ----------------------------------------------------------
