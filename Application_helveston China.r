@@ -14,7 +14,6 @@ source("/Users/thanhthaobui/Documents/Abschlussarbeit Bauer/substract_choice_reg
 data <- load(file = "/Users/thanhthaobui/Documents/Abschlussarbeit Bauer/Data set USA China/helveston_data_wide_china.RData")
 
 # Separate the dataset into Calibration and evaluation subset with 360 and 88 deciders in 2 sets
-# For the second case: Separate the dataset into Calibration and evaluation subset with 250 and 198 deciders in 2 sets
 
 data_est <- data_wide[1:(360*15),]
 data_val <- data_wide[(360*15 + 1):nrow(data_wide),]
